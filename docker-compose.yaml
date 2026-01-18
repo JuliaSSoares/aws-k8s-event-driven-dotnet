@@ -1,0 +1,12 @@
+version: '3.8'
+
+services:
+  localstack:
+    image: localstack/localstack
+    ports:
+      - "4566:4566"            # Porta padrão para todos os serviços AWS
+    environment:
+      - SERVICES=dynamodb,sns,sqs
+      - DEFAULT_REGION=us-east-1
+    volumes:
+      - "./init-aws.sh:/etc/localstack/init/ready.d/init-aws.sh" # Script de inicialização
