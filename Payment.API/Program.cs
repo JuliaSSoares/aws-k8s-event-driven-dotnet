@@ -8,23 +8,25 @@ using Payment.Domain;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// --- 1. REGISTRO DE SERVIÇOS ---
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+
+var awsServiceUrl = builder.Configuration["AWS:ServiceURL"] ?? "http://localhost:4566";
+var topicArn = builder.Configuration["AWS:TopicArn"] ?? "arn:aws:sns:us-east-1:000000000000:PaymentEvents";
 
 var credentials = new BasicAWSCredentials("test", "test");
 
 var dynamoConfig = new AmazonDynamoDBConfig
 {
-    ServiceURL = "http://localhost:4566",
+    ServiceURL = awsServiceUrl, 
     UseHttp = true,
     AuthenticationRegion = "us-east-1"
 };
 
 var snsConfig = new AmazonSimpleNotificationServiceConfig
 {
-    ServiceURL = "http://localhost:4566",
+    ServiceURL = awsServiceUrl, 
     UseHttp = true,
     AuthenticationRegion = "us-east-1"
 };
@@ -41,23 +43,18 @@ builder.Services.AddScoped<IDynamoDBContext, DynamoDBContext>();
 
 var app = builder.Build();
 
-// --- 2. MIDDLEWARES ---
-if (app.Environment.IsDevelopment())
-{
-    app.UseSwagger();
-    app.UseSwaggerUI();
-}
+app.UseSwagger();
+app.UseSwaggerUI();
+
 
 app.UseHttpsRedirection();
 app.UseAuthorization();
 
-// --- 3. ENDPOINT POST /PAYMENTS ---
 app.MapPost("/payments", async (
     [FromBody] PaymentRequest request,
     IDynamoDBContext context,
     IAmazonSimpleNotificationService snsClient) =>
 {
-    // Criar objeto baseado no seu script (payment_id)
     var payment = new PaymentRecord
     {
         Id = Guid.NewGuid().ToString(),
@@ -65,10 +62,8 @@ app.MapPost("/payments", async (
         Status = "Pending"
     };
 
-    // Passo 1: Salvar no DynamoDB
     await context.SaveAsync(payment);
 
-    // Passo 2: Publicar no SNS (ARN conforme seu script)
     var topicArn = "arn:aws:sns:us-east-1:000000000000:PaymentEvents";
     var message = System.Text.Json.JsonSerializer.Serialize(payment);
 
@@ -76,6 +71,7 @@ app.MapPost("/payments", async (
 
     return Results.Ok(new { message = "Pagamento processado", id = payment.Id });
 });
+
 
 app.MapControllers();
 app.Run();
