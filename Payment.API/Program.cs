@@ -4,7 +4,7 @@ using Amazon.SimpleNotificationService;
 using Amazon.SimpleNotificationService.Model;
 using Microsoft.AspNetCore.Mvc;
 using Amazon.Runtime;
-using Payment.API;
+using Payment.Domain;
 
 var builder = WebApplication.CreateBuilder(args);
 

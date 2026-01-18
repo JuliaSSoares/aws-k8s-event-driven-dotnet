@@ -1,11 +1,11 @@
-using Amazon.DynamoDBv2.DataModel;
+﻿using Amazon.DynamoDBv2.DataModel;
 
-namespace Payment.API
+namespace Payment.Domain
 {
     [DynamoDBTable("Pagamentos")]
     public class PaymentRecord
     {
-        [DynamoDBHashKey("payment_id")] // Mapeia explicitamente para o nome no Dynamo
+        [DynamoDBHashKey("payment_id")] 
         public string Id { get; set; } = Guid.NewGuid().ToString();
 
         public decimal Amount { get; set; }
