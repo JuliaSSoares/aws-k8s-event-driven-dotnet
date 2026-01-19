@@ -63,8 +63,6 @@ app.MapPost("/payments", async (
     };
 
     await context.SaveAsync(payment);
-
-    var topicArn = "arn:aws:sns:us-east-1:000000000000:PaymentEvents";
     var message = System.Text.Json.JsonSerializer.Serialize(payment);
 
     await snsClient.PublishAsync(new PublishRequest(topicArn, message));
