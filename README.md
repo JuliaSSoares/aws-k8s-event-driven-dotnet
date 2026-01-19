@@ -47,6 +47,3 @@ kind load docker-image payment-processor:latest --name payment-system
 # Aplicar manifestos
 kubectl apply -f k8s/
 
-
-<img width="1749" height="234" alt="image" src="https://github.com/user-attachments/assets/069920cb-367f-4afc-8b69-85e0e0734880" />
-
